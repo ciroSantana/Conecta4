@@ -1,4 +1,5 @@
 import games
+import heuristicas
 
 #game = games.TicTacToe(h=3,v=3,k=3)
 game = games.ConnectFour()
@@ -28,7 +29,11 @@ while True:
         print "Thinking..."
         #move = games.minimax_decision(state, game)
         #move = games.alphabeta_full_search(state, game)
-        move = games.alphabeta_search(state, game)
+
+
+        move = games.alphabeta_search(state, game, heuristicas.easyMode())
+
+
 
         state = game.make_move(move, state)
         player = 'O'
