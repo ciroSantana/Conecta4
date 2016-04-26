@@ -2,31 +2,28 @@ import games
 import heuristicas
 
 def decide_turno():
-    return str(raw_input("Empieza jugando maquina (X) o jugador (O): ")).strip().upper()
+    return str(raw_input("Decida si empieza jugando maquina (X) o jugador (O): ")).strip().upper()
 
-def decide_modo():
-    i = 1
-    print "Niveles de juego de la maquina: "
-    while (i < 4):
-        print "(" + str(i) + ")" + heuristicas.get_modo(i)
-        i+=1
-
-    index = int(str(raw_input("Numero de heuristica deseada: ")).strip())-1
-    print "Ha elegido " + heuristicas.get_modo(index) + "."
-    return index
+def decide_modo(h):
+    h.display_modos()
+    index = int(str(raw_input("Numero de modo deseado: ")).strip())-1
+    print "Ha elegido " + h.get_modoText(index) + "."
+    return h.get_modoFunction(index)
 
 def decide_jugador():
     return str(raw_input("Jugar con heuristica: si (V) no (X): ")).strip().upper()
 
-def decide_heuristica():
+def decide_heuristica(h):
 
     size = heuristicas.get_auxHeur_length()
-    i = 1
+    i = 0
     while (i < size+1):
-        print "(" + str(i) + ")" + heuristicas.get_auxHeur(i)
+        print "(" + str(i+1) + ")" + heuristicas.get_auxHeur(i)
         i+=1
 
-    return int(str(raw_input("Numero de heuristica deseada: ")).strip())-1
+    index = int(str(raw_input("Numero de heuristica deseada: ")).strip())-1
+    print "Ha elegido " + heuristicas.get_auxHeur(index)
+    return h.get_heurFunction(index)
 
 def maq_maq(game, state, player, heur_modo, heur2):
     while True:
@@ -75,11 +72,7 @@ def maq_jug(game, state, player, heur_modo):
             #move = games.minimax_decision(state, game)
             #move = games.alphabeta_full_search(state, game)
 
-
-
-            move = games.alphabeta_search(state, game, heur_modo)
-
-
+            move = games.alphabeta_search(state, game, eval_fn=heur_modo)
 
             state = game.make_move(move, state)
             player = 'O'
@@ -91,23 +84,20 @@ def maq_jug(game, state, player, heur_modo):
 
 
 #game = games.TicTacToe(h=3,v=3,k=3)
-game = games.ConnectFour()
 
-state = game.initial
 
 player = decide_turno()
-modo = decide_modo()-1
-string_modo = "heuristicas." + heuristicas.get_modo(modo) + "()"
+game = games.ConnectFour(player=player)
+state = game.initial
+h = heuristicas.Heuristicas()
+funcion_modo = decide_modo(h)
 maquina2 = decide_jugador()
 
 if (maquina2 == 'V'):
-    heuristicas.display_heuristicas()
-    heur_index = decide_heuristica()
-    string_heur2 = "heuristicas." + heuristicas.get_auxHeur(heur_index) + "()"
-    maq_maq(game, state, player, string_modo, heur_index)
+    maq_maq(game, state, player, funcion_modo, decide_heuristica(h))
 
 else:
-    maq_jug(game, state, player, string_modo)
+    maq_jug(game, state, player, funcion_modo)
 
 
 
