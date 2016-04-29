@@ -59,21 +59,16 @@ class Heuristicas:
             if (c_ocup[x-1] in (0,6)):    #si la columna está vacía o llena, parar
                 continue
 
-            item = state.board.get((x,1))       #si la columna tiene elementos, coger el primero
-
-            for y in range(1,7):
+            item = state.board.get((x,c_ocup[x-1]))       #si la columna tiene elementos, coger el primero
+            for y in range(c_ocup[x-1],-1,-1):
                 item2 = state.board.get((x,y))
                 if (item == state.board.get((x,y))):  #contar el número de elementos contiguos iguales
                     count+=1
 
                 else:
-                    contiguos[x-1].append((y-1, count))
-
-                    if (count == c_ocup[x-1]): break
-
-                    count = 1
-                    item = state.board.get((x,y))
-
+                    contiguos[x-1].append((y+1, count))
+                    break
+        x=x
         #descartes
         for x in range(0,len(contiguos)):
             y = len(contiguos[x])-1
