@@ -22,10 +22,10 @@ class Heuristicas:
             f_index = self.tratar_filas(state) #tratar fila
 
             if (c_index[1] > f_index[1]):       #heuristica = max_piezas_contiguas*jugador
-                return (c_index[1]*c_index[2])
+                return math.sqrt(c_index[1])*c_index[2]
 
             else:
-                return (f_index[1]*f_index[2])
+                return math.sqrt(f_index[1])*f_index[2]
 
     def tratar_columnas(self, state):
 
