@@ -21,18 +21,14 @@ class Heuristicas:
 
             f_index = self.tratar_filas(state) #tratar fila
 
-            if (c_index[1] > f_index[1]):       #heuristica = max_piezas_contiguas*jugador
-                return math.sqrt(c_index[1])*c_index[2]
-
-            else:
-                return math.sqrt(f_index[1])*f_index[2]
+            return c_index + f_index
 
     def tratar_columnas(self, state):
 
         c_ocup = self.cuenta_piezas_columna(state)     #contar numero de piezas por columna
         contiguos = self.contiguos_columnas(state, c_ocup)  #contar número de contiguos válidos
 
-        return self.maximo(contiguos=contiguos) #la columna con mayor numero de apariciones contiguas, no invalidas, sera la mejor
+        return self.maximo(contiguos) #
 
     def cuenta_piezas_columna(self, state):     #devuelve v donde v[i] = nº piezas en columna i
 
@@ -59,54 +55,38 @@ class Heuristicas:
             if c_ocup[x-1] == 0:    #si la columna está vacía, parar
                 continue
 
-            item = state.board.get((x,c_ocup[x-1]))       #si la columna tiene elementos, coger el primero
-            for y in range(c_ocup[x-1],-1,-1):
+            item = state.board.get((x,1))       #si la columna tiene elementos, coger el primero
+            for y in range(1,8):
                 if (item == state.board.get((x,y))):  #contar el número de elementos contiguos iguales
                     count+=1
 
                 else:
-                    contiguos[x-1].append((y+1, count, item))
-                    break
-        #descartes
-        for x in range(0,len(contiguos)):
-            y = len(contiguos[x])-1
-            while (y > -1):
+                    if (item in ('X', 'O')):
+                        contiguos[x-1].append((count, item))
 
-                if (contiguos[x][y][1] >= 4):               #si ya hay 4 en raya, continua descartando
-                    y-=1
-                    continue
-                if (4-contiguos[x][y][1] + c_ocup[x]) > 6:  #si no se puede hacer 4 en raya en esa columna
-                    for z in range(len(contiguos[x])-1,-1,-1):  #borramos todas las ocurrencias de la columna
-                        contiguos[x].__delitem__(z)
-                    break
-                if (state.board.get((x+1,contiguos[x][y][0] +1), '.') != '.'):   #si está bloqueada
-                    contiguos[x].__delitem__(y)
-                y-=1
+                    if (count == c_ocup[y-1]): break
+
+                    count = 1
+                    item = state.board.get((x,y))
+
         return contiguos
 
-    def maximo(self, state=None, contiguos=[], fila=False):       #devuelve el par (columna_tomove, conectados)
-        linea, count, jugador = 0, 0, 0
+    def maximo(self, contiguos):       #devuelve el par (columna_tomove, conectados)
+        count = 0
 
         for x in range(0,len(contiguos)):
             for y in range(0,len(contiguos[x])):
-                if (contiguos[x][y][1] > count):
-                    count = contiguos[x][y][1]
-                    linea = x+1
-                    if (contiguos[x][y][1] == 'O'): jugador = -1
-                    else: jugador = 1
+                if contiguos[x][y][1] == 'X': count += (5^contiguos[x][y][0])
+                else: count += (5^contiguos[x][y][0]) * -1
 
-
-        if (fila) and (len(contiguos[linea-1]) != 0):
-            linea = self.columna_tomove(state, linea, contiguos[linea-1][0][0], contiguos[linea-1][0][1])
-
-        return (linea,count,jugador)
+        return count
 
     def tratar_filas(self, state):  #diferencia con columnas: después de saber qué fila es la mayor, hay que decir la columna a la que mover
 
         f_ocup = self.cuenta_piezas_fila(state)#contar numero de piezas por fila
         contiguos = self.contiguos_filas(state, f_ocup)
 
-        return self.maximo(state, contiguos, fila=1) #buscar fila max, columna max, y devuelve (col_max,count)
+        return self.maximo(contiguos) #buscar fila max, columna max, y devuelve (col_max,count)
 
     def cuenta_piezas_fila(self, state):
 
@@ -137,82 +117,16 @@ class Heuristicas:
                     count+=1
 
                 else:
-
                     if (item in ('X','O')):
-                        contiguos[y-1].append((x-1,count,item))   # x = fin
+                        contiguos[y-1].append((count,item))   # x = fin
 
-                    if (count == f_ocup[y-1]): break    #si ya se ha acabado de comprobar toda la fila  #no está haciendo nada: en caso de que los elementos
-                                                        # estén separados, count va tomando valores cero, y su suma es mayor que el f_ocup, pero no interrumpe
+                    if (count == f_ocup[y-1]): break
 
                     count = 1
                     item = state.board.get((x,y))
 
-        #descartes
-        for x in range(0,len(contiguos)):
-            y = len(contiguos[x])-1
-            while (y > -1):
-
-                if (contiguos[x][y][1] >= 4):       #si ya hay 4 en raya en la fila, seguir descartando
-                    y-=1
-                    continue
-
-                if (4-contiguos[x][y][1] + f_ocup[x]) > 7:  #si no se puede hacer 4 en raya en esa fila
-                    for z in range(len(contiguos[x])-1,-1,-1):  #borramos todas las ocurrencias de la fila
-                        contiguos[x].__delitem__(z)
-                    break
-                if (self.busca_bloqueos(state, x+1, contiguos[x][y][0], contiguos[x][y][1])):   #si está bloqueada
-                    contiguos[x].__delitem__(y)
-                y-=1
 
         return contiguos
-
-    def busca_bloqueos(self, state, fila, fin, count):  #devuelve true si no se puede hacer 4 en raya en esa fila
-
-        ini = fin - (count-1)   #primera pieza por la izda
-
-        aux = 0
-        for x in range(ini-1, 0, -1):    #busca por la izda
-
-            if (state.board.get((x,fila), '.') == '.'):
-                aux+=1
-
-            if (aux + count >= 4):
-                return 0
-
-        aux = 0
-        for x in range(fin+1, 8):       #busca por la dcha
-
-            if (state.board.get((x,fila),'.') == '.'):
-                aux+=1
-
-            if (aux + count >= 4):
-                return 0
-
-        return 1
-
-    def columna_tomove(self, state, fila_tomove, fin, count):   #devuelve la columna a la que moverse dentro de la fila
-                                                                #según los espacios libres
-
-        izq = 0
-        ini = fin - count
-        for x in range(ini,0, -1):
-            if (state.board.get((x, fila_tomove), '.') == '.'):
-                izq+=1
-            else:
-                break
-
-        dcha = 0
-        for x in range(fin+1,8):
-            if (state.board.get((x, fila_tomove), '.') == '.'):
-                dcha+=1
-            else:
-                break
-
-        if (izq>dcha):
-            return ini
-        else:
-            return fin + 1
-
 
     def modo_medio(self, state):
         return "No está implementado"
