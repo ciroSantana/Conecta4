@@ -15,14 +15,11 @@ def decide_jugador():
 
 def decide_heuristica(h):
 
-    size = heuristicas.get_auxHeur_length()
-    i = 0
-    while (i < size+1):
-        print "(" + str(i+1) + ")" + heuristicas.get_auxHeur(i)
-        i+=1
+    for i in range(0, h.get_auxHeur_length()):
+        print "(" + str(i+1) + ")" + h.get_auxHeur(i)
 
     index = int(str(raw_input("Numero de heuristica deseada: ")).strip())-1
-    print "Ha elegido " + heuristicas.get_auxHeur(index)
+    print "Ha elegido " + h.get_auxHeur(index)
     return h.get_heurFunction(index)
 
 def maq_maq(game, state, player, heur_modo, heur2):
@@ -37,8 +34,6 @@ def maq_maq(game, state, player, heur_modo, heur2):
             player = 'X'
         else:
             print "Thinking maquina A..."
-            #move = games.minimax_decision(state, game)
-            #move = games.alphabeta_full_search(state, game)
 
             move = games.alphabeta_search(state, game, heur_modo)
 
