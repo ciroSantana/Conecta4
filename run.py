@@ -29,13 +29,13 @@ def maq_maq(game, state, player, heur_modo, heur2):
 
         if player == 'O':
             print "Thinking maquina B..."
-            move = games.alphabeta_search(state, game, heur2)
+            move = games.alphabeta_search(state, game, eval_fn=heur2)
             state = game.make_move(move, state)
             player = 'X'
         else:
             print "Thinking maquina A..."
 
-            move = games.alphabeta_search(state, game, heur_modo)
+            move = games.alphabeta_search(state, game, eval_fn=heur_modo)
 
             state = game.make_move(move, state)
             player = 'O'
@@ -64,8 +64,6 @@ def maq_jug(game, state, player, heur_modo):
             player = 'X'
         else:
             print "Thinking..."
-            #move = games.minimax_decision(state, game)
-            #move = games.alphabeta_full_search(state, game)
 
             move = games.alphabeta_search(state, game, eval_fn=heur_modo)
 

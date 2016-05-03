@@ -1,34 +1,32 @@
 # coding=utf-8
-import games
 import random
-import math
-
 
 class Heuristicas:
 
     def __init__(self):
         self.modos = ["Modo facil", "Modo medio", "Modo_dificil"]
         self.modos_functions = [self.modo_facil, self.modo_medio, self.modo_dificil]
-        self.auxHeur = []
-        self.auxHeur_functions = []
+        self.auxHeur = ["Modo aleatorio"]
+        self.auxHeur_functions = [self.modo_random]
+
+    def modo_random(self, state):
+        return random.randint(-100, 100)
 
     def modo_facil(self, state):
-        return random.randint(-100, 100)
+
+        columnas = self.contiguos_columnas(state)  #tratar columna
+
+        filas = self.contiguos_filas(state) #tratar fila
+
+        return self.maximo(filas, factor=2) + self.maximo(columnas, factor=2)
 
     def modo_dificil(self, state):
 
-            c_index = self.tratar_columnas(state)  #tratar columna
+        columnas = self.contiguos_columnas(state)  #tratar columna
 
-            f_index = self.tratar_filas(state) #tratar fila
+        filas = self.contiguos_filas(state) #tratar fila
 
-            return c_index + f_index
-
-    def tratar_columnas(self, state):
-
-        c_ocup = self.cuenta_piezas_columna(state)     #contar numero de piezas por columna
-        contiguos = self.contiguos_columnas(state, c_ocup)  #contar número de contiguos válidos
-
-        return self.maximo(contiguos) #
+        return self.maximo(filas, factor=1000) + self.maximo(columnas, factor=1000)
 
     def cuenta_piezas_columna(self, state):     #devuelve v donde v[i] = nº piezas en columna i
 
@@ -45,9 +43,10 @@ class Heuristicas:
         #devolver vector
         return c
 
-    def contiguos_columnas(self, state, c_ocup):    #devuelve vector[] con (fin,count)
+    def contiguos_columnas(self, state):    #devuelve vector[] con (fin,count)
 
         contiguos = []
+        c_ocup = self.cuenta_piezas_columna(state)
 
         for x in range(1,8): #recorrer columnas
             count = 0
@@ -71,22 +70,15 @@ class Heuristicas:
 
         return contiguos
 
-    def maximo(self, contiguos):       #devuelve el par (columna_tomove, conectados)
+    def maximo(self, contiguos, factor):       #devuelve el par (columna_tomove, conectados)
         count = 0
 
         for x in range(0,len(contiguos)):
             for y in range(0,len(contiguos[x])):
-                if contiguos[x][y][1] == 'X': count += (5^contiguos[x][y][0])
-                else: count += (5^contiguos[x][y][0]) * -1
+                if contiguos[x][y][1] == 'X': count += (factor**contiguos[x][y][0])
+                else: count += (factor**contiguos[x][y][0])*(-1)
 
         return count
-
-    def tratar_filas(self, state):  #diferencia con columnas: después de saber qué fila es la mayor, hay que decir la columna a la que mover
-
-        f_ocup = self.cuenta_piezas_fila(state)#contar numero de piezas por fila
-        contiguos = self.contiguos_filas(state, f_ocup)
-
-        return self.maximo(contiguos) #buscar fila max, columna max, y devuelve (col_max,count)
 
     def cuenta_piezas_fila(self, state):
 
@@ -101,9 +93,10 @@ class Heuristicas:
 
         return f
 
-    def contiguos_filas(self, state, f_ocup):
+    def contiguos_filas(self, state):
 
         contiguos = []
+        f_ocup = self.cuenta_piezas_fila(state)
         #recorrer filas
         for y in range(1,7):
             contiguos.append([])
