@@ -1,41 +1,25 @@
 import games
 import heuristicas
 
-def decide_turno():
+def decide_inicio():
     return str(raw_input("Decida si empieza jugando maquina (X) o jugador (O): ")).strip().upper()
-
-def decide_modo(h):
-    h.display_modos()
-    index = int(str(raw_input("Numero de modo deseado: ")).strip())-1
-    print "Ha elegido " + h.get_modoText(index) + "."
-    return h.get_modoFunction(index)
-
 def decide_jugador():
     return str(raw_input("Jugar con heuristica: si (V) no (X): ")).strip().upper()
 
-def decide_heuristica(h):
-
-    for i in range(0, h.get_auxHeur_length()):
-        print "(" + str(i+1) + ")" + h.get_auxHeur(i)
-
-    index = int(str(raw_input("Numero de heuristica deseada: ")).strip())-1
-    print "Ha elegido " + h.get_auxHeur(index)
-    return h.get_heurFunction(index)
-
-def maq_maq(game, state, player, heur_modo, heur2):
+def maq_maq(game, state, player, heur_maq, heur_jugador2):
     while True:
         print "Jugador a mover:", game.to_move(state)
         game.display(state)
 
         if player == 'O':
             print "Thinking maquina B..."
-            move = games.alphabeta_search(state, game, eval_fn=heur2)
+            move = games.alphabeta_search(state, game, d=heur_jugador2.depth, eval_fn=heur_jugador2.modo)
             state = game.make_move(move, state)
             player = 'X'
         else:
             print "Thinking maquina A..."
 
-            move = games.alphabeta_search(state, game, eval_fn=heur_modo)
+            move = games.alphabeta_search(state, game, d=heur_maq.depth, eval_fn=heur_maq.modo)
 
             state = game.make_move(move, state)
             player = 'O'
@@ -45,7 +29,7 @@ def maq_maq(game, state, player, heur_modo, heur2):
             print "Final de la partida"
             break
 
-def maq_jug(game, state, player, heur_modo):
+def maq_jug(game, state, player, heur_maq):
     while True:
         print "Jugador a mover:", game.to_move(state)
         game.display(state)
@@ -65,7 +49,7 @@ def maq_jug(game, state, player, heur_modo):
         else:
             print "Thinking..."
 
-            move = games.alphabeta_search(state, game, eval_fn=heur_modo)
+            move = games.alphabeta_search(state, game, d=heur_maq.depth, eval_fn=heur_maq.modo)
 
             state = game.make_move(move, state)
             player = 'O'
@@ -76,21 +60,19 @@ def maq_jug(game, state, player, heur_modo):
             break
 
 
-#game = games.TicTacToe(h=3,v=3,k=3)
-
-
-player = decide_turno()
+player = decide_inicio()
 game = games.ConnectFour(player=player)
 state = game.initial
-h = heuristicas.Heuristicas()
-funcion_modo = decide_modo(h)
+
+modo_maquina = heuristicas.Heuristicas("maquina")
+
 maquina2 = decide_jugador()
 
 if (maquina2 == 'V'):
-    maq_maq(game, state, player, funcion_modo, decide_heuristica(h))
+    maq_maq(game, state, player, modo_maquina, heuristicas.Heuristicas("jugador2"))
 
 else:
-    maq_jug(game, state, player, funcion_modo)
+    maq_jug(game, state, player, modo_maquina)
 
 
 

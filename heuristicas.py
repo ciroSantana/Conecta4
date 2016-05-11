@@ -3,24 +3,35 @@ import random
 
 class Heuristicas:
 
-    def __init__(self):
-        self.modos = ["Modo facil", "Modo medio", "Modo_dificil"]
-        self.modos_functions = [self.modo_facil, self.modo_medio, self.modo_dificil]
-        self.auxHeur = ["Modo aleatorio"]
-        self.auxHeur_functions = [self.modo_random]
+    def memoize(f):
+
+        memo = {}
+
+        def helper(self,x):
+            estado = frozenset(x.board.items())
+
+            if estado not in memo:
+                memo[estado] = f(self,x)
+
+            return memo[estado]
+
+        return helper
+
+    def __init__(self, nombre):
+        self.text_modos = ["Modo aleatorio", "Modo facil", "Modo medio", "Modo dificil"]
+        self.funct_modos = [(self.modo_random,2), (self.mi_heuristica,2), (self.mi_heuristica,4), (self.mi_heuristica,6)]
+
+        self.nombre = nombre
+        index = self.decide_modo()
+
+        self.modo = self.funct_modos[index][0]
+        self.depth = self.funct_modos[index][1]
 
     def modo_random(self, state):
         return random.randint(-100, 100)
 
-    def modo_facil(self, state):
-
-        columnas = self.contiguos_columnas(state)  #tratar columna
-
-        filas = self.contiguos_filas(state) #tratar fila
-
-        return self.maximo(filas, factor=2) + self.maximo(columnas, factor=2)
-
-    def modo_dificil(self, state):
+    @memoize
+    def mi_heuristica(self, state):
 
         columnas = self.contiguos_columnas(state)  #tratar columna
 
@@ -121,36 +132,17 @@ class Heuristicas:
 
         return contiguos
 
-    def modo_medio(self, state):
-        return "No está implementado"
-
-    def display_heuristicas(self):      #método para heuristicas de otros compañeros
-        print "Heuristicas disponibles"
+    def decide_modo(self):      #método para heuristicas de otros compañeros
+        print "******************************"
+        print "Definir modo de juego de " + self.nombre + ": "
 
         i = 0
-        for h in self.auxHeur:
-            print "(" + i + 1 + ")" + h
+        for h in self.text_modos:
+            print "(" + str(i + 1) + ")" + h
             i += 1
 
-    def display_modos(self):
-        print "Modos disponibles"
+        index = int(str(raw_input("Numero de modo deseado: ")).strip())-1
+        print "Ha elegido: " + self.text_modos[index] + "."
+        print "******************************"
 
-        i = 0
-        for h in self.modos:
-            print "(" + str(i+1) + ")" + h
-            i += 1
-
-    def get_modoText(self, i):  # cambiar por display_modes si no se va a usar el muestreo individual
-        return self.modos[i]
-
-    def get_modoFunction(self, i):
-        return self.modos_functions[i]
-
-    def get_auxHeur(self, i):
-        return self.auxHeur[i]
-
-    def get_auxHeur_length(self):
-        return len(self.auxHeur)
-
-    def get_heurFunction(self, index):
-        return self.auxHeur_functions[index]
+        return index
