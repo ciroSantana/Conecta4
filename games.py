@@ -80,6 +80,7 @@ def alphabeta_search(state, game, d=2, cutoff_test=None, eval_fn=None):
     def max_value(state, alpha, beta, depth):
         if cutoff_test(state, depth):
             return eval_fn(state)
+
         v = -infinity
         for (a, s) in game.successors(state):
             v = max(v, min_value(s, alpha, beta, depth+1))
@@ -91,6 +92,7 @@ def alphabeta_search(state, game, d=2, cutoff_test=None, eval_fn=None):
     def min_value(state, alpha, beta, depth):
         if cutoff_test(state, depth):
             return eval_fn(state)
+
         v = infinity
         for (a, s) in game.successors(state):
             v = min(v, max_value(s, alpha, beta, depth+1))
@@ -238,10 +240,10 @@ class TicTacToe(Game):
 
     def compute_utility(self, board, move, player):
         "If X wins with this move, return 1; if O return -1; else return 0."
-        if (self.k_in_row(board, move, player, (0, 1)) or
-                self.k_in_row(board, move, player, (1, 0)) or
-                self.k_in_row(board, move, player, (1, -1)) or
-                self.k_in_row(board, move, player, (1, 1))):
+        if (self.k_in_row(board, move, player, (0, 1)) or       #recorre la columna de arriba a abajo
+                self.k_in_row(board, move, player, (1, 0)) or   #recorre la fila de izquierda a derecha
+                self.k_in_row(board, move, player, (1, -1)) or  #recorre en diagonal de arriba a abajo
+                self.k_in_row(board, move, player, (1, 1))):    #recorre en diagonal de abajo a arriba
             return if_(player == 'X', +1, -1)
         else:
             return 0

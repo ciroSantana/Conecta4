@@ -3,8 +3,8 @@ import heuristicas
 
 def decide_inicio():
     return str(raw_input("Decida si empieza jugando maquina (X) o jugador (O): ")).strip().upper()
-def decide_jugador():
-    return str(raw_input("Jugar con heuristica: si (V) no (X): ")).strip().upper()
+def decide_jugador2():
+    return str(raw_input("Modo Automatico: si (V) no (X): ")).strip().upper()
 
 def maq_maq(game, state, player, heur_maq, heur_jugador2):
     while True:
@@ -12,12 +12,12 @@ def maq_maq(game, state, player, heur_maq, heur_jugador2):
         game.display(state)
 
         if player == 'O':
-            print "Thinking maquina B..."
+            print "Thinking maquina O..."
             move = games.alphabeta_search(state, game, d=heur_jugador2.depth, eval_fn=heur_jugador2.modo)
             state = game.make_move(move, state)
             player = 'X'
         else:
-            print "Thinking maquina A..."
+            print "Thinking maquina X..."
 
             move = games.alphabeta_search(state, game, d=heur_maq.depth, eval_fn=heur_maq.modo)
 
@@ -64,12 +64,12 @@ player = decide_inicio()
 game = games.ConnectFour(player=player)
 state = game.initial
 
-modo_maquina = heuristicas.Heuristicas("maquina")
+modo_maquina = heuristicas.Heuristicas("X")
 
-maquina2 = decide_jugador()
+maquina2 = decide_jugador2()
 
 if (maquina2 == 'V'):
-    maq_maq(game, state, player, modo_maquina, heuristicas.Heuristicas("jugador2"))
+    maq_maq(game, state, player, modo_maquina, heuristicas.Heuristicas("O"))
 
 else:
     maq_jug(game, state, player, modo_maquina)
