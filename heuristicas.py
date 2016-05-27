@@ -59,8 +59,8 @@ class Heuristicas:
 
         suma = self.trata_filas(state.board, pos, state.to_move)
         suma += self.trata_columnas(state.board, pos, state.to_move)
-        suma += self.trata_diagonales(6, state.board, pos, state.to_move, -1) #descendente
-        suma += self.trata_diagonales(1, state.board, pos, state.to_move, 1)   #ascendente
+        suma += self.trata_diagonales(6, state.board, pos, state.to_move, -1) #desde la dcha
+        suma += self.trata_diagonales(1, state.board, pos, state.to_move, 1)   #desde la izda
 
         return suma
 
@@ -93,7 +93,8 @@ class Heuristicas:
         return valor
 
     #recorrido diagonal
-    #dx: (1) ascendente, (-1) descendente
+    #dx: (1) izda-dcha, (-1) dcha-izda
+    #sentido_ini: ascendente (0) o descendente (1)
     def trata_diagonales(self, ini, tablero, pos, jugador, dx):
         valor = 0
         sentido_ini = 0
