@@ -52,7 +52,7 @@ class Heuristicas:
 
 
     @memoize
-    #Calcula suma heuristica por filas, columnas y diagonales
+    #Calcula la suma heuristica por filas, columnas y diagonales
     def mi_heuristica(self, state):
 
         pos = [1,1]
@@ -69,7 +69,7 @@ class Heuristicas:
         valor = 0
         for y in range(6):
             while pos[0] <= 7:
-                pos, aux = self.suma(tablero, pos, jugador, 1, 0)
+                pos, aux = self.calcula_suma(tablero, pos, jugador, 1, 0)
                 valor += aux
                 pos[0] += 1
 
@@ -83,7 +83,7 @@ class Heuristicas:
         valor = 0
         for x in range(7):
             while pos[1] <= 6:
-                pos, aux = self.suma(tablero, pos, jugador, 0, 1)
+                pos, aux = self.calcula_suma(tablero, pos, jugador, 0, 1)
                 valor += aux
                 pos[1] += 1
 
@@ -100,8 +100,8 @@ class Heuristicas:
         for i in range(2):
             for j in range(2, 8):
                 while pos[1] <= 6:
-                    #suma de la diagonal y recoge posicion final para
-                    pos, aux = self.suma(tablero, pos, jugador, dx, 1)
+                    #calcula_suma de la diagonal y recoge posicion final para
+                    pos, aux = self.calcula_suma(tablero, pos, jugador, dx, 1)
                     valor += aux
                     #seguir recorriendo a partir de la posicion anterior
                     pos[0] += dx
@@ -114,55 +114,51 @@ class Heuristicas:
 
             sentido_ini = not sentido_ini
 
-        if (valor >= 1500): valor -= 1000
-        if (valor <= -1500): valor += 1000
+        if (valor >= 100000): valor -= 10000
+        if (valor <= -100000): valor += 10000
 
         return valor
 
-    #Devuelve la suma de valor de la linea y posicion final
+    #Devuelve la calcula_suma de valor de la linea y posicion final
     #Recorre en sentido_ini (dx,dy)
-    def suma(self, board, pos, player, dx, dy):
-        suma = 0
+    def calcula_suma(self, board, pos, player, dx, dy):
+        calcula_suma = 0
         while tuple(pos) in board:
             pos, aux = self.mi_kinrow(board, pos, player, (dx, dy))
-            suma += aux
+            calcula_suma += aux
 
             if (player == 'X'):
                 pos, aux = self.mi_kinrow(board, pos, 'O', (dx, dy))
             else:
                 pos, aux = self.mi_kinrow(board, pos, 'X', (dx, dy))
 
-            suma += aux
+            calcula_suma += aux
 
-        return pos, suma*self.comodin   #comodin en caso de heuristica jugador O
+        return pos, calcula_suma*self.comodin   #comodin en caso de heuristica jugador O
 
     #Devuelve el valor de las fichas adyacentes de player y la ultima pos
     #Recorre a partir de (x, y) en sentido (dx, dy)
     #(dx, dy) --> (0,1) columnas, (1,0) filas, (1,1) diagonales
     def mi_kinrow(self, board, (x, y), player, (dx, dy)):
 
-        contiguos = 0  # n is number of moves in row
+        num_contiguos = 0  # n is number of moves in row
         while board.get((x, y)) == player:
-            contiguos += 1
+            num_contiguos += 1
             x, y = x + dx, y + dy
 
         if (player == 'X'):
-            value = self.get_value(contiguos)
+            value = self.get_value(num_contiguos)
         else:
-            value = -self.get_value(contiguos)
+            value = -self.get_value(num_contiguos)
 
         return [x, y], value
 
-    def get_value(self, contiguos):
-        if contiguos >= 4:
-            return 15000
-        elif contiguos == 3:
-            return 5000
-        elif contiguos == 2:
+    def get_value(self, num_contiguos):
+        if num_contiguos >= 4:
+            return 100000
+        elif num_contiguos == 3:
+            return 10000
+        elif num_contiguos == 2:
             return 1000
         else:
             return 0
-
-
-    #el modo maquina no funciona bien porque le asigna valores negativos al usuario
-    #con el simbolo O, luego siempre va a ser negativo, y no escoge la heuristica de "mejor" valor

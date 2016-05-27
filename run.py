@@ -4,7 +4,7 @@ import heuristicas
 def decide_inicio():
     return str(raw_input("Decida si empieza jugando maquina (X) o jugador (O): ")).strip().upper()
 def decide_jugador2():
-    return str(raw_input("Modo Automatico: si (V) no (X): ")).strip().upper()
+    return str(raw_input("Modo Automatico si / no: ")).strip().upper()
 
 def maq_maq(game, state, player, heur_maq, heur_jugador2):
     while True:
@@ -66,9 +66,7 @@ state = game.initial
 
 modo_maquina = heuristicas.Heuristicas("X")
 
-maquina2 = decide_jugador2()
-
-if (maquina2 == 'V'):
+if (decide_jugador2() in ("s", "S", "si", "Si", "SI")):
     maq_maq(game, state, player, modo_maquina, heuristicas.Heuristicas("O"))
 
 else:

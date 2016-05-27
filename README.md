@@ -5,8 +5,8 @@ Práctica 1: Búsqueda con oponente - Conecta 4
 
 Hemos implementado una heurística que recorre por filas, columnas y diagonales buscando cada ocurrencia de piezas
 adyacentes, dándole mayor importancia cuantas más piezas se hallen conjuntas. De esta forma, la acumulación de dos fichas
-contiguas reporta a su jugador 1000 puntos, de tres, 5x1000 = 5000, y de 4 o más, 15000, indicando las combinaciones más
-favorables para cada jugador.
+contiguas reporta a su jugador 10^3 puntos, de tres, 10^4 = 10000, y de 4 o más, 10^5 = 100000, indicando las combinaciones
+más favorables para cada jugador.
 
 Para ello, hemos desarrollado tres métodos que realizan cada uno de los tipos de recorrido, y que buscan para cada línea
 el valor de las fichas contiguas de cada jugador. En el caso de las filas y las columnas, el recorrido se realiza de forma
